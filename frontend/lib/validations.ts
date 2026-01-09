@@ -79,6 +79,7 @@ export const CreateUserSchema = z.object({
     .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
     .regex(/[0-9]/, "Password must contain at least 1 number")
     .regex(/[^A-Za-z0-9]/, "Password must contain at least 1 special character"),
+  name: z.string().min(1, "Name is required"),
 });
 
 export type CreateUserRequest = z.infer<typeof CreateUserSchema>;

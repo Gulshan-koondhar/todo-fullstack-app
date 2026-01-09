@@ -27,7 +27,7 @@ export const auth = betterAuth({
   },
   endpoints: {
     signIn: {
-      handler: async (ctx) => {
+      handler: async (ctx: { body: { email: string; password: string } }) => {
         const { email, password } = ctx.body;
         const response = await fetch(`${API_URL}/users/sign-in`, {
           method: 'POST',
@@ -47,12 +47,12 @@ export const auth = betterAuth({
       },
     },
     signUp: {
-      handler: async (ctx) => {
-        const { email, password } = ctx.body;
+      handler: async (ctx: { body: { email: string; password: string; name: string } }) => {
+        const { email, password, name } = ctx.body;
         const response = await fetch(`${API_URL}/users/sign-up`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, name }),
         });
         const data = await response.json();
 
@@ -69,13 +69,3 @@ export const auth = betterAuth({
   },
 });
 
-// Type augmentation for better-auth
-declare module "better-auth" {
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-    };
-    token: string;
-  }
-}

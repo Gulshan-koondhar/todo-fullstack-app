@@ -88,7 +88,7 @@ export function useTasks() {
   };
 
   const toggleTask = async (taskId: string, completed: boolean) => {
-    return updateTask(taskId, { completed });
+    await updateTask(taskId, { completed });
   };
 
   return {

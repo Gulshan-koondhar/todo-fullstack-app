@@ -21,6 +21,7 @@ export default function SignupPage() {
   const [formData, setFormData] = useState<CreateUserRequest & { confirmPassword?: string }>({
     email: "",
     password: "",
+    name: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -59,6 +60,7 @@ export default function SignupPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          name: formData.name,
         }),
       });
 
@@ -120,6 +122,22 @@ export default function SignupPage() {
               {errors.general}
             </div>
           )}
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              disabled={isLoading}
+              required
+              aria-invalid={!!errors.name}
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name}</p>
+            )}
+          </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

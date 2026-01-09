@@ -15,6 +15,7 @@ export function SignupForm() {
   const [formData, setFormData] = useState<CreateUserRequest>({
     email: "",
     password: "",
+    name: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +26,7 @@ export function SignupForm() {
       await signUp.email({
         email: formData.email,
         password: formData.password,
-        confirmPassword: formData.password,
+        name: formData.name,
       });
 
       toast({
@@ -54,6 +55,20 @@ export function SignupForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              disabled={isLoading}
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

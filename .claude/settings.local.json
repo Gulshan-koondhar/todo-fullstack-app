@@ -18,7 +18,8 @@
       "Bash(curl:*)",
       "Bash(pip install:*)",
       "Bash(timeout:*)",
-      "Bash(python -m uvicorn:*)"
+      "Bash(python -m uvicorn:*)",
+      "Bash(npm run build)"
     ]
   }
 }
