@@ -1,55 +1,135 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+  Sync Impact Report
+  =================
+  Version: 0.0.0 → 1.0.0
+  Change: Initial constitution created from user requirements
+  Modified Principles: All (new constitution)
+  Added Sections: Core Principles, Technology Stack & Constraints, Agentic Dev Stack Workflow, Governance
+  Removed Sections: None (new constitution)
+  Templates Updated:
+    ✅ plan-template.md - Constitution Check section already exists
+    ✅ spec-template.md - Already aligned with spec-driven workflow
+    ✅ tasks-template.md - Already supports phased, user-story organization
+    ✅ phr-template.prompt.md - Already supports constitution stage
+  Follow-up TODOs: None
+-->
+
+# Hackathon II - Evolution of Todo Phase II: Full-Stack Web Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-Driven Development
+All code MUST be generated exclusively by Claude Code through spec refinement. Every feature MUST have its own dedicated Markdown spec file before implementation. Zero manual coding is permitted - all implementation MUST be traceable to spec-driven iterations.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+**Rationale**: Ensures architectural integrity, prevents ad-hoc decisions, and maintains complete traceability from requirements to implementation.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. User Data Isolation and Security
+Complete user data isolation and security through JWT authentication. Authentication MUST use Better Auth with stateless JWT tokens. All requests without valid JWT MUST return 401 Unauthorized. Database operations MUST always filter by authenticated user_id. Task ownership MUST be enforced on every CRUD operation.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**Rationale**: Guarantees security boundaries between users, prevents data leakage, and enforces strict access controls mandated by multi-user requirements.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Clean, Modular Architecture
+The architecture MUST be clean, modular, and maintainable. Code organization MUST support extensibility for future phases including chatbot, Kubernetes, and event-driven systems. Monorepo structure MUST follow the hackathon-specified layout with organized specs.
 
-### [PRINCIPLE_6_NAME]
+**Rationale**: Enables incremental feature development, reduces technical debt, and supports architectural evolution through multiple hackathon phases.
 
+### IV. Reusable Intelligence Implementation
+Bonus-eligible implementation of reusable intelligence using skills and subagents. Intelligence components MUST be designed for reusability across current and future features.
 
-[PRINCIPLE__DESCRIPTION]
+**Rationale**: Maximizes AI agent capabilities, accelerates development velocity, and demonstrates bonus-eligible agentic patterns.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### V. Agentic Dev Stack Workflow
+The Agentic Dev Stack workflow MUST be followed: spec → plan → tasks → implement. Every feature MUST progress through these stages sequentially. Implementation cannot begin without completing tasks.md.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**Rationale**: Ensures rigorous planning, validation, and execution, preventing scope creep and ensuring quality delivery.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### VI. Technology Stack Compliance
+Technology stack is locked: Next.js 16+ (App Router), FastAPI, SQLModel, Neon Serverless PostgreSQL, Better Auth. No deviations from the defined API endpoints or authentication flow. Shared BETTER_AUTH_SECRET environment variable MUST be used across frontend and backend.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**Rationale**: Provides consistent, predictable technology choices, reduces decision overhead, and ensures compatibility across hackathon requirements.
+
+## Technology Stack & Constraints
+
+### Locked Technology Stack
+- **Frontend**: Next.js 16+ with App Router
+- **Backend**: FastAPI
+- **ORM**: SQLModel
+- **Database**: Neon Serverless PostgreSQL
+- **Authentication**: Better Auth (stateless JWT tokens)
+
+### API Contract Requirements
+- API endpoints MUST exactly match the specified REST contract
+- user_id MUST be included in API paths where required
+- All database queries MUST filter by authenticated user_id
+- No deviations from specified REST endpoints
+
+### Authentication Flow
+- Stateless JWT tokens issued by Better Auth
+- BETTER_AUTH_SECRET shared between frontend and backend
+- Missing or invalid JWT MUST return 401 Unauthorized
+- User identity extracted from JWT for all operations
+
+### Data Isolation Constraints
+- Every database operation MUST include user_id filter
+- Users can only view, create, update, and delete their own tasks
+- No cross-user data access permitted
+- No hardcoded data or test data that bypasses authentication
+
+### Code Generation Constraints
+- Zero manual code edits permitted
+- All implementation must be generated by Claude Code
+- All changes must be traceable to spec-driven iterations
+- No ad-hoc modifications outside the spec-driven workflow
+
+## Agentic Dev Stack Workflow
+
+### Workflow Stages
+1. **Spec Creation**: User provides feature description → Claude generates spec.md with user stories, requirements, and success criteria
+2. **Planning**: Claude generates plan.md with architecture, data models, API contracts, and implementation strategy
+3. **Task Generation**: Claude generates tasks.md with testable, ordered tasks grouped by user story
+4. **Implementation**: Claude executes tasks.md sequentially, implementing all code
+
+### Documentation Requirements
+- Every feature gets its own spec.md before implementation
+- Public GitHub repository MUST contain:
+  - Constitution (this file)
+  - Full specs history in `specs/` directory
+  - All generated code
+  - CLAUDE.md files for agent guidance
+- CLAUDE.md MUST follow the SpecKit Plus structure
+
+### Success Criteria Tracking
+- Working multi-user web application with full CRUD for tasks
+- Users can only view, create, update, and delete their own tasks
+- Responsive frontend interface deployed on Vercel
+- Backend API secured with JWT verification and user filtering
+- Evidence of reusable intelligence usage (skills/subagents) for bonus consideration
+- Zero manual code edits — all implementation traceable to spec-driven iterations
+- Successful demonstration in <90-second video showing signup, login, task management, and isolation between users
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+### Constitution Authority
+This constitution supersedes all other practices and guidelines in the project. All development decisions MUST be evaluated against these principles. Any ambiguity MUST be resolved by prioritizing security, data isolation, and spec-driven workflow.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+### Amendment Process
+1. Propose amendment with clear justification and impact analysis
+2. Document the change rationale, affected artifacts, and migration strategy
+3. Verify that changes do not violate core security and isolation principles
+4. Update constitution version following semantic versioning:
+   - MAJOR: Backward-incompatible principle removals or redefinitions
+   - MINOR: New principle added or material expansion of guidance
+   - PATCH: Clarifications, wording fixes, non-semantic refinements
+5. Propagate changes to dependent templates (plan, spec, tasks)
+6. Maintain full amendment history in governance section
+
+### Compliance Verification
+- All PRs MUST verify compliance with constitution principles
+- Complexity or deviations from principles MUST be explicitly justified
+- Constitution Check in plan.md MUST be completed before implementation
+- Any bypass of spec-driven workflow MUST be documented and approved
+
+### Runtime Development Guidance
+Use CLAUDE.md in the repository root for agent-specific runtime guidance. Constitution provides the principles; CLAUDE.md provides operational context.
+
+**Version**: 1.0.0 | **Ratified**: 2026-01-03 | **Last Amended**: 2026-01-03

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "Bash(pwsh -File:*)",
+      "Bash(cat:*)",
+      "Bash(dir:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm install:*)",
+      "Bash(python -c \"import fastapi, uvicorn, sqlmodel, pydantic, jose, passlib, psycopg2, multipart, dotenv; print\\(''All required packages are installed''\\)\")",
+      "Bash(python -m uvicorn app.main:app --reload --port 8000)",
+      "Bash(npm run dev)",
+      "Bash(npx next dev)",
+      "Bash(timeout 15s uvicorn app.main:app --reload --port 8000)",
+      "Bash(python -c \"import uvicorn; print\\(''Uvicorn available''\\)\")",
+      "Bash(python -m uvicorn app.main:app --port 8000)",
+      "Bash(python -c:*)",
+      "Bash(curl:*)",
+      "Bash(pip install:*)",
+      "Bash(timeout:*)",
+      "Bash(python -m uvicorn:*)"
+    ]
+  }
+}
