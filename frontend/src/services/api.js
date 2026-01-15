@@ -3,7 +3,12 @@ import { authClient } from '@/lib/auth-client';
 
 class ApiService {
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Ensure the base URL includes /api/v1 if not already present
+    const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Remove trailing slash if present
+    const cleanBaseURL = rawBaseURL.endsWith('/') ? rawBaseURL.slice(0, -1) : rawBaseURL;
+    // Add /api/v1 if it's not already included
+    this.baseURL = cleanBaseURL.includes('/api/v1') ? cleanBaseURL : `${cleanBaseURL}/api/v1`;
     this.authToken = null;
   }
 
@@ -156,48 +161,137 @@ class ApiService {
     return this.request('/users/me');
   }
 
-  // Todo operations
+  // Todo operations - These should work with the actual backend API structure
+  // The backend uses /users/{user_id}/tasks, so we need to get user ID first
   async getTodos(completed = null) {
-    let url = '/api/v1/todos';
-    if (completed !== null) {
-      url += `?completed=${completed}`;
+    // Extract user ID from token and call the correct endpoint
+    try {
+      const token = await this.getAuthToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const payload = this.decodeJwtPayload(token);
+      const userId = payload.sub;
+
+      if (!userId) {
+        throw new Error('Could not extract user ID from token');
+      }
+
+      const params = completed !== null ? `?completed=${completed}` : '';
+      return this.request(`/users/${userId}/tasks${params}`);  // baseURL already includes /api/v1
+    } catch (error) {
+      throw new Error(`Could not get todos: ${error.message}`);
     }
-    return this.request(url);
   }
 
   async createTodo(title, description = null) {
-    return this.request('/api/v1/todos', {
-      method: 'POST',
-      body: JSON.stringify({ title, description }),
-    });
+    // Extract user ID from token and call the correct endpoint
+    try {
+      const token = await this.getAuthToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const payload = this.decodeJwtPayload(token);
+      const userId = payload.sub;
+
+      if (!userId) {
+        throw new Error('Could not extract user ID from token');
+      }
+
+      return this.request(`/users/${userId}/tasks`, {  // baseURL already includes /api/v1
+        method: 'POST',
+        body: JSON.stringify({ title, description }),
+      });
+    } catch (error) {
+      throw new Error(`Could not create todo: ${error.message}`);
+    }
   }
 
   async updateTodo(todoId, updates) {
-    return this.request(`/api/v1/todos/${todoId}`, {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-    });
+    // Extract user ID from token and call the correct endpoint
+    try {
+      const token = await this.getAuthToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const payload = this.decodeJwtPayload(token);
+      const userId = payload.sub;
+
+      if (!userId) {
+        throw new Error('Could not extract user ID from token');
+      }
+
+      return this.request(`/users/${userId}/tasks/${todoId}`, {  // baseURL already includes /api/v1
+        method: 'PUT',
+        body: JSON.stringify(updates),
+      });
+    } catch (error) {
+      throw new Error(`Could not update todo: ${error.message}`);
+    }
   }
 
   async deleteTodo(todoId) {
-    return this.request(`/api/v1/todos/${todoId}`, {
-      method: 'DELETE',
-    });
+    // Extract user ID from token and call the correct endpoint
+    try {
+      const token = await this.getAuthToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const payload = this.decodeJwtPayload(token);
+      const userId = payload.sub;
+
+      if (!userId) {
+        throw new Error('Could not extract user ID from token');
+      }
+
+      return this.request(`/users/${userId}/tasks/${todoId}`, {  // baseURL already includes /api/v1
+        method: 'DELETE',
+      });
+    } catch (error) {
+      throw new Error(`Could not delete todo: ${error.message}`);
+    }
   }
 
   async toggleTodoCompletion(todoId) {
-    return this.request(`/api/v1/todos/${todoId}/toggle`, {
-      method: 'PATCH',
-    });
+    // Extract user ID from token and call the correct endpoint
+    try {
+      const token = await this.getAuthToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const payload = this.decodeJwtPayload(token);
+      const userId = payload.sub;
+
+      if (!userId) {
+        throw new Error('Could not extract user ID from token');
+      }
+
+      // For toggle, we need to first get the current task and then update it
+      const currentTask = await this.request(`/users/${userId}/tasks/${todoId}`, {  // baseURL already includes /api/v1
+        method: 'GET',
+      });
+
+      return this.request(`/users/${userId}/tasks/${todoId}`, {  // baseURL already includes /api/v1
+        method: 'PUT',
+        body: JSON.stringify({ completed: !currentTask.completed }),
+      });
+    } catch (error) {
+      throw new Error(`Could not toggle todo completion: ${error.message}`);
+    }
   }
 
   // Chat operations
   async getChatHistory() {
-    return this.request('/api/v1/chat/history');
+    return this.request('/chat/history');  // baseURL already includes /api/v1
   }
 
   async sendMessage(message) {
-    return this.request('/api/v1/chat/message', {
+    return this.request('/chat/message', {  // baseURL already includes /api/v1
       method: 'POST',
       body: JSON.stringify({ message }),
     });
