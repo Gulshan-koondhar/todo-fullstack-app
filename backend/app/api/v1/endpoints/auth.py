@@ -6,6 +6,7 @@ from typing import Optional
 import re
 
 from app.db.session import get_db
+from app.core.deps import get_current_user_id
 from app.models.user import User
 from app.core.security import create_access_token
 
@@ -181,6 +182,27 @@ async def get_user(
     Get user by ID (for verification purposes).
 
     Returns 404 if user doesn't exist.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    return user
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user(
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """
+    Get the current authenticated user's information.
+
+    This endpoint extracts the user ID from the JWT token and returns the user details.
     """
     user = db.query(User).filter(User.id == user_id).first()
 

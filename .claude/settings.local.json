@@ -19,7 +19,14 @@
       "Bash(pip install:*)",
       "Bash(timeout:*)",
       "Bash(python -m uvicorn:*)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(powershell -Command \"& ''.specify/scripts/powershell/create-new-feature.ps1'' -Description ''Phase III – AI-Powered Todo Chatbot \\(Spec-Driven Development\\)\n\nTarget audience:\n- Hackathon judges\n- AI-native system architects\n- Developers evaluating agent-based application design\n\nFocus:\n- Conversational Todo management using an AI agent\n- Tool-based execution via MCP\n- Reuse of Phase II backend, database, and authentication\n\nSuccess criteria:\n- Users can create, read, update, complete, and delete todos using natural language\n- AI agent reliably maps user intent to correct MCP tool calls\n- All Todo actions are executed via existing FastAPI APIs\n- Chat history is persisted and user-scoped\n- System behavior is deterministic and explainable\n\nConstraints:\n- Frontend: Next.js with chat-based interface\n- Backend: Existing FastAPI APIs from Phase II \\(no breaking changes\\)\n- Database: Neon PostgreSQL \\(reuse existing schema\\)\n- AI Layer: OpenAI Agents SDK\n- Protocol: Official MCP SDK only\n- Authentication: Reuse Phase II auth \\(JWT-based\\)\n- Architecture: Stateless AI, persistent external memory\n- Development: Spec-driven only \\(no manual coding\\)\n\nNot building:\n- Voice-based interaction\n- Multilingual support\n- Recommendation or task-prioritization AI\n- Autonomous background task creation\n- Workflow automation beyond Todo management\n- Infrastructure deployment \\(handled in'' -Number 1 -ShortName ''ai-todo-chatbot''\")",
+      "Bash(.specify/scripts/powershell/setup-plan.ps1 -Json)",
+      "Bash(.specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
+      "Bash(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
+      "Bash(ls -la app/\\\\\\(main\\\\\\)/)",
+      "Bash(taskkill /F /PID 4212)",
+      "Bash(python test_api.py)"
     ]
   }
 }

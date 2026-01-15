@@ -15,7 +15,7 @@ export function AddTaskButton({ onClick, isLoading }: AddTaskButtonProps) {
       <Button
         onClick={onClick}
         disabled={isLoading}
-        className="hidden md:flex fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg"
+        className="hidden md:flex fixed bottom-24 right-8 h-14 w-14 rounded-full shadow-lg"
         size="icon"
         aria-label="Add new task"
       >
@@ -26,7 +26,7 @@ export function AddTaskButton({ onClick, isLoading }: AddTaskButtonProps) {
       <Button
         onClick={onClick}
         disabled={isLoading}
-        className="md:hidden fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
+        className="md:hidden fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg"
         size="icon"
         aria-label="Add new task"
       >

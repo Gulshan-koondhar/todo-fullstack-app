@@ -6,6 +6,7 @@ import { useSession } from "@/lib/session/session-context";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
+import FloatingChatButton from "@/components/chat/FloatingChatButton";
 
 export default function MainLayout({
   children,
@@ -71,6 +72,7 @@ export default function MainLayout({
         </div>
       </header>
       <main className="container mx-auto px-4 py-8">{children}</main>
+      <FloatingChatButton />
     </div>
   );
 }

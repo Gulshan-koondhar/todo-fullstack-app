@@ -41,53 +41,86 @@ export function useTasks() {
   const createTask = async (data: CreateTaskRequest) => {
     if (!user?.id) throw new Error("Not authenticated");
 
-    const response = await api.post<Task>(
-      `/users/${user.id}/tasks`,
-      data
-    );
+    try {
+      const response = await api.post<Task>(
+        `/users/${user.id}/tasks`,
+        data
+      );
 
-    setTasks((prev) => [response, ...prev]);
-    toast({
-      title: "Task created",
-      description: "Your task has been created successfully.",
-    });
+      setTasks((prev) => [response, ...prev]);
+      toast({
+        title: "Task created",
+        description: "Your task has been created successfully.",
+      });
 
-    return response;
+      return response;
+    } catch (error) {
+      console.error("Error creating task:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create task. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   const updateTask = async (taskId: string, data: UpdateTaskRequest) => {
     if (!user?.id) throw new Error("Not authenticated");
+    if (!taskId) throw new Error("Task ID is required for update");
 
-    const response = await api.put<Task>(
-      `/users/${user.id}/tasks/${taskId}`,
-      data
-    );
+    try {
+      const response = await api.put<Task>(
+        `/users/${user.id}/tasks/${taskId}`,
+        data
+      );
 
-    setTasks((prev) =>
-      prev.map((task) => (task.id === taskId ? response : task))
-    );
+      setTasks((prev) =>
+        prev.map((task) => (task.id === taskId ? response : task))
+      );
 
-    toast({
-      title: "Task updated",
-      description: "Your task has been updated successfully.",
-    });
+      toast({
+        title: "Task updated",
+        description: "Your task has been updated successfully.",
+      });
 
-    return response;
+      return response;
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update task. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   const deleteTask = async (taskId: string) => {
     if (!user?.id) throw new Error("Not authenticated");
+    if (!taskId) throw new Error("Task ID is required for deletion");
 
-    await api.delete(`/users/${user.id}/tasks/${taskId}`);
+    try {
+      await api.delete(`/users/${user.id}/tasks/${taskId}`);
 
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-    toast({
-      title: "Task deleted",
-      description: "Your task has been deleted successfully.",
-    });
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+      toast({
+        title: "Task deleted",
+        description: "Your task has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete task. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   const toggleTask = async (taskId: string, completed: boolean) => {
+    if (!taskId) throw new Error("Task ID is required to toggle completion");
     await updateTask(taskId, { completed });
   };
 
