@@ -23,7 +23,9 @@ class MessageHandler {
       update: [
         /\b(update|change|modify|edit)\s+(a\s+)?(todo|task|item)/i,
         /\b(mark|set)\s+(as\s+)?(done|completed|finished|complete|not\s+done|incomplete)/i,
-        /\b(complete|finish|done)\s+(a\s+)?(todo|task|item)/i
+        /\b(complete|finish|done)\s+(a\s+)?(todo|task|item)/i,
+        /\b(update|change|modify)\s+.+\s+with\s+.+/i,  // Pattern for "update X with Y"
+        /\b(change|modify)\s+.+\s+to\s+.+/i           // Pattern for "change X to Y"
       ],
       delete: [
         /\b(delete|remove|cancel|clear|erase)\s+.+\s+(task|todo|item)/i,
@@ -31,6 +33,12 @@ class MessageHandler {
         /\b(remove|delete)\s+(from\s+)?(my\s+)?(list|todo\s+list)/i
       ]
     };
+
+    // Additional patterns for completion that might appear in general messages
+    this.completionPatterns = [
+      /\b(complete|finish|done)\s+.+\s+(task|todo|item)/i,  // "complete buy milk task"
+      /\b(mark|set)\s+.+\s+(as\s+)?(done|completed|finished|complete)/i,  // "mark X as complete"
+    ];
   }
 
   /**
@@ -87,6 +95,13 @@ class MessageHandler {
     for (const pattern of this.patterns.update) {
       if (pattern.test(message)) {
         return 'update';
+      }
+    }
+
+    // Check for completion patterns that might appear in general messages
+    for (const pattern of this.completionPatterns) {
+      if (pattern.test(message)) {
+        return 'update';  // Completion is a type of update
       }
     }
 
@@ -245,6 +260,31 @@ class MessageHandler {
             content: `Sorry, I couldn't update that todo: ${response.error || 'Unknown error'}`
           };
         }
+      } else if (action.type === 'update_with' || action.type === 'update_to') {
+        // Handle update with new title (e.g., "update X with Y" or "change X to Y")
+        const newTitle = action.newValue;
+        if (!newTitle) {
+          return {
+            success: false,
+            content: "I couldn't understand what you want to change the todo to."
+          };
+        }
+
+        const response = await this.apiService.updateTodoMCP(todoToModify.id, {
+          title: newTitle
+        });
+
+        if (response.success) {
+          return {
+            success: true,
+            content: `I've updated your todo from "${todoToModify.title}" to "${response.todo.title}".`
+          };
+        } else {
+          return {
+            success: false,
+            content: `Sorry, I couldn't update that todo: ${response.error || 'Unknown error'}`
+          };
+        }
       } else {
         return {
           success: false,
@@ -322,6 +362,14 @@ class MessageHandler {
    * Handle general messages that don't match specific patterns
    */
   async handleGeneral(message) {
+    // Check if the message matches completion patterns before treating as create
+    for (const pattern of this.completionPatterns) {
+      if (pattern.test(message)) {
+        // If it matches a completion pattern, handle it as an update
+        return await this.handleUpdate(message);
+      }
+    }
+
     // For now, treat as a create request if it seems like a todo
     if (this.looksLikeTodo(message)) {
       return await this.handleCreate(message);
@@ -372,6 +420,36 @@ class MessageHandler {
    * Extract todo title and action from a message
    */
   extractTodoAndAction(message) {
+    // Look for update patterns with "with" (e.g., "update buy milk with buy bread")
+    const updateWithMatch = message.match(/\b(update|change|modify)\s+(.+?)\s+with\s+(.+)$/i);
+    if (updateWithMatch) {
+      const [, , todoTitle] = updateWithMatch;
+      return {
+        todoTitle: todoTitle.trim(),
+        action: { type: 'update_with', newValue: updateWithMatch[3].trim() }
+      };
+    }
+
+    // Look for update patterns with "to" (e.g., "change buy milk to buy bread")
+    const updateToMatch = message.match(/\b(change|modify)\s+(.+?)\s+to\s+(.+)$/i);
+    if (updateToMatch) {
+      const [, , todoTitle] = updateToMatch;
+      return {
+        todoTitle: todoTitle.trim(),
+        action: { type: 'update_to', newValue: updateToMatch[3].trim() }
+      };
+    }
+
+    // Look for completion patterns with "task" at the end (e.g., "complete buy milk task")
+    const completionWithTaskMatch = message.match(/\b(complete|finish|done)\s+(.+?)\s+(task|todo|item)$/i);
+    if (completionWithTaskMatch) {
+      const [, , todoTitle] = completionWithTaskMatch;
+      return {
+        todoTitle: todoTitle.trim(),
+        action: { type: 'completion', value: true }
+      };
+    }
+
     // Look for completion patterns
     if (/\b(mark|set|complete|finish|done)\s+(as\s+)?(done|completed|finished|complete)\b/i.test(message)) {
       const todoTitle = message.replace(/\b(mark|set|complete|finish|done)\s+(as\s+)?(done|completed|finished|complete)\b/i, '').trim();
