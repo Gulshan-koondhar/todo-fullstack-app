@@ -31,10 +31,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configure CORS
+# Configure CORS - handle both comma-separated string and list formats
+cors_origins = []
+if settings.BACKEND_CORS_ORIGINS:
+    if isinstance(settings.BACKEND_CORS_ORIGINS, str):
+        cors_origins = [origin.strip() for origin in settings.BACKEND_CORS_ORIGINS.split(",")]
+    else:
+        cors_origins = settings.BACKEND_CORS_ORIGINS
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS.split(",") if settings.BACKEND_CORS_ORIGINS else ["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,9 +68,15 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+
+    # Use environment variables for port and host (Hugging Face Spaces compatibility)
+    port = int(os.environ.get("PORT", settings.BACKEND_PORT))
+    host = os.environ.get("HOST", settings.BACKEND_HOST)
+
     uvicorn.run(
         "app.main:app",
-        host=settings.BACKEND_HOST,
-        port=settings.BACKEND_PORT,
-        reload=True,
+        host=host,
+        port=port,
+        reload=False,  # Disable reload for production/Hugging Face
     )

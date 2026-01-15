@@ -5,6 +5,10 @@ from app.core.config import settings
 import logging
 from typing import Optional
 
+# Import all models to register them with SQLModel metadata
+from app.models.user import User
+from app.models.task import Task
+
 
 # Engine will be created lazily to handle malformed URLs gracefully
 engine: Optional[object] = None
@@ -21,13 +25,18 @@ def get_engine():
 
     try:
         # Validate that the DATABASE_URL looks like a proper connection string
-        if not settings.DATABASE_URL or not settings.DATABASE_URL.startswith(('postgresql://', 'postgresql+psycopg2://', 'sqlite://', 'mysql://', 'oracle://')):
-            raise ValueError(f"Invalid database URL format: {settings.DATABASE_URL}. Must start with postgresql:// or postgresql+psycopg2://")
+        db_url = settings.DATABASE_URL
+        if not db_url:
+            # Use SQLite as fallback for Hugging Face Spaces deployment
+            db_url = "sqlite:///./todo.db"
+
+        if not db_url.startswith(('postgresql://', 'postgresql+psycopg2://', 'sqlite://', 'mysql://', 'oracle://')):
+            raise ValueError(f"Invalid database URL format: {db_url}. Must start with postgresql://, sqlite://, mysql://, or oracle://")
 
         # Only apply sslmode for PostgreSQL databases, not for SQLite
-        connect_args = {"sslmode": "require"} if "localhost" not in settings.DATABASE_URL and not settings.DATABASE_URL.startswith("sqlite://") else {}
+        connect_args = {"sslmode": "require"} if "localhost" not in db_url and not db_url.startswith("sqlite://") else {}
         engine = create_engine(
-            settings.DATABASE_URL,
+            db_url,
             echo=False,
             connect_args=connect_args,
         )

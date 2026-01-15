@@ -1,52 +1,57 @@
 <!--
   Sync Impact Report
   =================
-  Version: 0.0.0 → 1.0.0
-  Change: Initial constitution created from user requirements
-  Modified Principles: All (new constitution)
-  Added Sections: Core Principles, Technology Stack & Constraints, Agentic Dev Stack Workflow, Governance
-  Removed Sections: None (new constitution)
+  Version: 1.0.0 → 1.1.0
+  Change: Updated constitution to emphasize AI-native design, MCP protocol, and stateless AI with persistent memory
+  Modified Principles: I. AI-Native Design, V. Reusable Intelligence Implementation, VI. Agentic Dev Stack Workflow
+  Added Sections: MCP Protocol Compliance, Stateless AI Architecture
+  Removed Sections: None
   Templates Updated:
-    ✅ plan-template.md - Constitution Check section already exists
-    ✅ spec-template.md - Already aligned with spec-driven workflow
-    ✅ tasks-template.md - Already supports phased, user-story organization
-    ✅ phr-template.prompt.md - Already supports constitution stage
+    ✅ plan-template.md - Updated to reflect MCP requirements
+    ✅ spec-template.md - Updated to reflect AI-native design requirements
+    ✅ tasks-template.md - Updated to reflect stateless AI architecture requirements
+    ✅ phr-template.prompt.md - No changes needed
   Follow-up TODOs: None
 -->
 
-# Hackathon II - Evolution of Todo Phase II: Full-Stack Web Application Constitution
+# Phase III – AI-Powered Todo Chatbot (Spec-Driven Development) Constitution
 
 ## Core Principles
 
-### I. Spec-Driven Development
-All code MUST be generated exclusively by Claude Code through spec refinement. Every feature MUST have its own dedicated Markdown spec file before implementation. Zero manual coding is permitted - all implementation MUST be traceable to spec-driven iterations.
+### I. AI-Native Design (Agent-First, Tool-Driven, No Hardcoded Flows)
+All functionality MUST be implemented through AI agents using the official MCP SDK. Natural language input MUST be translated into structured tool calls. AI agents MUST NOT directly manipulate databases or bypass existing FastAPI APIs. All Todo operations MUST be executed via MCP tools backed by FastAPI APIs. AI agent MUST NOT directly manipulate the database. Natural language input MUST be translated into structured tool calls. Agent decisions MUST be explainable and traceable.
+
+**Rationale**: Ensures deterministic, traceable AI operations while maintaining separation of concerns between AI reasoning and data storage.
+
+### II. Spec-Driven Development
+All code MUST be generated exclusively by Claude Code through spec refinement. Every feature MUST have its own dedicated Markdown spec file before implementation. Zero manual coding is permitted outside the spec-driven workflow - all implementation MUST be traceable to spec-driven iterations.
 
 **Rationale**: Ensures architectural integrity, prevents ad-hoc decisions, and maintains complete traceability from requirements to implementation.
 
-### II. User Data Isolation and Security
-Complete user data isolation and security through JWT authentication. Authentication MUST use Better Auth with stateless JWT tokens. All requests without valid JWT MUST return 401 Unauthorized. Database operations MUST always filter by authenticated user_id. Task ownership MUST be enforced on every CRUD operation.
+### III. User Data Isolation and Security
+Complete user data isolation and security through JWT authentication. Authentication MUST use Better Auth with stateless JWT tokens. All requests without valid JWT MUST return 401 Unauthorized. Database operations MUST always filter by authenticated user_id. Task ownership MUST be enforced on every CRUD operation. Every user action MUST be authenticated and user-scoped.
 
 **Rationale**: Guarantees security boundaries between users, prevents data leakage, and enforces strict access controls mandated by multi-user requirements.
 
-### III. Clean, Modular Architecture
-The architecture MUST be clean, modular, and maintainable. Code organization MUST support extensibility for future phases including chatbot, Kubernetes, and event-driven systems. Monorepo structure MUST follow the hackathon-specified layout with organized specs.
+### IV. Reuse of Phase II Architecture
+Reuse of Phase II architecture, APIs, and database without redesign. Backend: Existing FastAPI APIs from Phase II (no breaking changes). Database: Neon PostgreSQL (reuse Phase II schema). All changes MUST maintain backward compatibility with existing Phase II features.
 
-**Rationale**: Enables incremental feature development, reduces technical debt, and supports architectural evolution through multiple hackathon phases.
+**Rationale**: Ensures continuity with previous work, minimizes risk of introducing breaking changes, and maximizes reuse of proven architecture.
 
-### IV. Reusable Intelligence Implementation
-Bonus-eligible implementation of reusable intelligence using skills and subagents. Intelligence components MUST be designed for reusability across current and future features.
+### V. Deterministic Tool Execution via MCP
+Deterministic tool execution via MCP (no hallucinated actions). Protocol: Official MCP SDK only. AI agent MUST consistently select correct MCP tools. No hallucinated responses or unauthorized actions.
 
-**Rationale**: Maximizes AI agent capabilities, accelerates development velocity, and demonstrates bonus-eligible agentic patterns.
+**Rationale**: Ensures reliable, predictable AI operations while preventing unauthorized or unsafe actions.
 
-### V. Agentic Dev Stack Workflow
-The Agentic Dev Stack workflow MUST be followed: spec → plan → tasks → implement. Every feature MUST progress through these stages sequentially. Implementation cannot begin without completing tasks.md.
+### VI. Stateless AI with Persistent External Memory
+Stateless AI with persistent external memory. Chat sessions: Stateless (no in-memory conversation state). Chat history MUST be stored and retrievable per user. Clear separation between reasoning, tools, and data storage.
+
+**Rationale**: Ensures scalability, reliability, and persistence of user data while maintaining stateless AI operations.
+
+### VII. Agentic Dev Stack Workflow
+The Agentic Dev Stack workflow MUST be followed: spec → plan → tasks → implement. Every feature MUST progress through these stages sequentially. Implementation cannot begin without completing tasks.md. No manual coding outside spec-driven workflow.
 
 **Rationale**: Ensures rigorous planning, validation, and execution, preventing scope creep and ensuring quality delivery.
-
-### VI. Technology Stack Compliance
-Technology stack is locked: Next.js 16+ (App Router), FastAPI, SQLModel, Neon Serverless PostgreSQL, Better Auth. No deviations from the defined API endpoints or authentication flow. Shared BETTER_AUTH_SECRET environment variable MUST be used across frontend and backend.
-
-**Rationale**: Provides consistent, predictable technology choices, reduces decision overhead, and ensures compatibility across hackathon requirements.
 
 ## Technology Stack & Constraints
 
@@ -56,6 +61,16 @@ Technology stack is locked: Next.js 16+ (App Router), FastAPI, SQLModel, Neon Se
 - **ORM**: SQLModel
 - **Database**: Neon Serverless PostgreSQL
 - **Authentication**: Better Auth (stateless JWT tokens)
+- **AI Layer**: OpenAI Agents SDK
+- **Protocol**: Official MCP SDK only
+
+### MCP Protocol Compliance
+- All AI operations MUST use official MCP SDK
+- AI agent MUST NOT directly manipulate databases
+- Every user action MUST be authenticated and user-scoped
+- Natural language input MUST be translated into structured tool calls
+- Agent decisions MUST be explainable and traceable
+- Chat history MUST be stored and retrievable per user
 
 ### API Contract Requirements
 - API endpoints MUST exactly match the specified REST contract
@@ -81,6 +96,12 @@ Technology stack is locked: Next.js 16+ (App Router), FastAPI, SQLModel, Neon Se
 - All changes must be traceable to spec-driven iterations
 - No ad-hoc modifications outside the spec-driven workflow
 
+### Stateless AI Architecture
+- Chat sessions: Stateless (no in-memory conversation state)
+- External persistent memory for conversation history
+- Clear separation between reasoning, tools, and data storage
+- No hardcoded flows or predetermined conversation paths
+
 ## Agentic Dev Stack Workflow
 
 ### Workflow Stages
@@ -99,6 +120,11 @@ Technology stack is locked: Next.js 16+ (App Router), FastAPI, SQLModel, Neon Se
 - CLAUDE.md MUST follow the SpecKit Plus structure
 
 ### Success Criteria Tracking
+- Users can manage todos entirely via natural language
+- AI agent consistently selects correct MCP tools
+- No hallucinated responses or unauthorized actions
+- All Phase II features remain fully functional
+- System is scalable and Kubernetes-ready
 - Working multi-user web application with full CRUD for tasks
 - Users can only view, create, update, and delete their own tasks
 - Responsive frontend interface deployed on Vercel
@@ -132,4 +158,4 @@ This constitution supersedes all other practices and guidelines in the project. 
 ### Runtime Development Guidance
 Use CLAUDE.md in the repository root for agent-specific runtime guidance. Constitution provides the principles; CLAUDE.md provides operational context.
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-03 | **Last Amended**: 2026-01-03
+**Version**: 1.1.0 | **Ratified**: 2026-01-03 | **Last Amended**: 2026-01-12

@@ -1,0 +1,199 @@
+# MCP Tool Contract for AI-Powered Todo Chatbot
+
+## Overview
+This contract defines the MCP (Model Context Protocol) tools that the AI agent will use to interact with the todo system.
+
+## Tool: create_todo
+**Description**: Creates a new todo item for the authenticated user
+
+**Function Signature**:
+```json
+{
+  "name": "create_todo",
+  "description": "Create a new todo item with the given title and optional description",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "The title of the todo item (1-255 characters)"
+      },
+      "description": {
+        "type": "string",
+        "description": "Optional description of the todo item (0-1000 characters)"
+      }
+    },
+    "required": ["title"]
+  }
+}
+```
+
+**Returns**:
+```json
+{
+  "success": "boolean",
+  "todo": {
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "completed": "boolean",
+    "created_at": "string (ISO 8601 datetime)",
+    "updated_at": "string (ISO 8601 datetime)"
+  },
+  "error": "string (if success is false)"
+}
+```
+
+## Tool: get_todos
+**Description**: Retrieves all todos for the authenticated user
+
+**Function Signature**:
+```json
+{
+  "name": "get_todos",
+  "description": "Get all todo items for the current user, optionally filtered by completion status",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "completed": {
+        "type": "boolean",
+        "description": "Optional filter to get only completed (true) or incomplete (false) todos"
+      }
+    }
+  }
+}
+```
+
+**Returns**:
+```json
+{
+  "success": "boolean",
+  "todos": [
+    {
+      "id": "string",
+      "title": "string",
+      "description": "string",
+      "completed": "boolean",
+      "created_at": "string (ISO 8601 datetime)",
+      "updated_at": "string (ISO 8601 datetime)"
+    }
+  ],
+  "error": "string (if success is false)"
+}
+```
+
+## Tool: update_todo
+**Description**: Updates an existing todo item for the authenticated user
+
+**Function Signature**:
+```json
+{
+  "name": "update_todo",
+  "description": "Update an existing todo item by ID",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "todo_id": {
+        "type": "string",
+        "description": "The ID of the todo item to update"
+      },
+      "title": {
+        "type": "string",
+        "description": "New title for the todo item (1-255 characters)"
+      },
+      "description": {
+        "type": "string",
+        "description": "New description for the todo item (0-1000 characters)"
+      },
+      "completed": {
+        "type": "boolean",
+        "description": "New completion status for the todo item"
+      }
+    },
+    "required": ["todo_id"]
+  }
+}
+```
+
+**Returns**:
+```json
+{
+  "success": "boolean",
+  "todo": {
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "completed": "boolean",
+    "created_at": "string (ISO 8601 datetime)",
+    "updated_at": "string (ISO 8601 datetime)"
+  },
+  "error": "string (if success is false)"
+}
+```
+
+## Tool: delete_todo
+**Description**: Deletes an existing todo item for the authenticated user
+
+**Function Signature**:
+```json
+{
+  "name": "delete_todo",
+  "description": "Delete an existing todo item by ID",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "todo_id": {
+        "type": "string",
+        "description": "The ID of the todo item to delete"
+      }
+    },
+    "required": ["todo_id"]
+  }
+}
+```
+
+**Returns**:
+```json
+{
+  "success": "boolean",
+  "message": "string (confirmation message)",
+  "error": "string (if success is false)"
+}
+```
+
+## Tool: toggle_todo_completion
+**Description**: Toggles the completion status of an existing todo item for the authenticated user
+
+**Function Signature**:
+```json
+{
+  "name": "toggle_todo_completion",
+  "description": "Toggle the completion status of an existing todo item by ID",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "todo_id": {
+        "type": "string",
+        "description": "The ID of the todo item to toggle"
+      }
+    },
+    "required": ["todo_id"]
+  }
+}
+```
+
+**Returns**:
+```json
+{
+  "success": "boolean",
+  "todo": {
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "completed": "boolean",
+    "created_at": "string (ISO 8601 datetime)",
+    "updated_at": "string (ISO 8601 datetime)"
+  },
+  "error": "string (if success is false)"
+}
+```
