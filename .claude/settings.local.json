@@ -26,7 +26,11 @@
       "Bash(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
       "Bash(ls -la app/\\\\\\(main\\\\\\)/)",
       "Bash(taskkill /F /PID 4212)",
-      "Bash(python test_api.py)"
+      "Bash(python test_api.py)",
+      "Bash(.specify/scripts/powershell/check-prerequisites.ps1 -Json)",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''frontend\\\\app\\\\\\(main\\)\\\\tasks'' -Force\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''frontend\\\\hooks'' -Recurse\")",
+      "Bash(powershell -Command \"Get-Content .gitignore\")"
     ]
   }
 }

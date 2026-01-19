@@ -39,6 +39,7 @@ class UpdateTaskRequest(BaseModel):
     title: OptionalType[str] = Field(None, min_length=1, max_length=200)
     description: OptionalType[str] = Field(None, max_length=1000)
     completed: OptionalType[bool] = None
+    in_progress: OptionalType[bool] = Field(None, validation_alias="inProgress")  # Accept inProgress from frontend, map to in_progress in model
 
     @field_validator("title")
     @classmethod
@@ -48,6 +49,10 @@ class UpdateTaskRequest(BaseModel):
             raise ValueError("Title cannot be empty or whitespace only")
         return v.strip() if v else v
 
+    model_config = {
+        "populate_by_name": True
+    }
+
 
 class TaskResponse(BaseModel):
     """Response schema for a single task."""
@@ -56,12 +61,14 @@ class TaskResponse(BaseModel):
     title: str
     description: OptionalType[str]
     completed: bool
+    in_progress: bool = Field(validation_alias="inProgress", serialization_alias="inProgress")
     user_id: str
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 
 class TasksListResponse(BaseModel):

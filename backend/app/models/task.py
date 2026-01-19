@@ -21,6 +21,7 @@ class Task(SQLModel, table=True):
         max_length=1000,
     )
     completed: bool = Field(default=False, index=True)
+    in_progress: bool = Field(default=False, index=True)
     user_id: str = Field(
         foreign_key="user.id",
         index=True,
@@ -39,6 +40,7 @@ class Task(SQLModel, table=True):
             "title": self.title,
             "description": self.description,
             "completed": self.completed,
+            "inProgress": self.in_progress,
             "user_id": self.user_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
@@ -51,6 +53,7 @@ class Task(SQLModel, table=True):
             "title": self.title,
             "description": self.description,
             "completed": self.completed,
+            "inProgress": self.in_progress,
             "user_id": self.user_id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
