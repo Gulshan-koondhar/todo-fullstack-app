@@ -32,14 +32,12 @@ export default function TasksPage() {
     try {
       await createTask(taskData);
       setIsModalOpen(false);
-      return true;
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to create task. Please try again.',
         variant: 'destructive',
       });
-      return false;
     }
   };
 

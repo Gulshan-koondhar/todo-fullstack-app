@@ -16,11 +16,11 @@ export function InsightsPanel({ tasks }: InsightsPanelProps) {
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const tasksCompletedThisWeek = tasks.filter(task =>
-    task.completed && new Date(task.updatedAt) > oneWeekAgo
+    task.completed && new Date(task.updated_at) > oneWeekAgo
   ).length;
 
   const tasksCreatedThisWeek = tasks.filter(task =>
-    new Date(task.createdAt) > oneWeekAgo
+    new Date(task.created_at) > oneWeekAgo
   ).length;
 
   return (
