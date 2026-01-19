@@ -8,10 +8,11 @@ interface TaskListProps {
   onToggle: (taskId: string, completed: boolean) => Promise<void>;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => Promise<void>;
+  onAddTask?: () => void;
   isLoading?: boolean;
 }
 
-export function TaskList({ tasks, onToggle, onEdit, onDelete, isLoading }: TaskListProps) {
+export function TaskList({ tasks, onToggle, onEdit, onDelete, onAddTask, isLoading }: TaskListProps) {
   if (isLoading) {
     return (
       <div className="space-y-4" role="status" aria-label="Loading tasks">
@@ -43,10 +44,16 @@ export function TaskList({ tasks, onToggle, onEdit, onDelete, isLoading }: TaskL
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-foreground">No tasks yet</h3>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h3 className="text-lg font-medium text-foreground mb-2">No tasks yet</h3>
+        <p className="text-sm text-muted-foreground mb-4">
           Create your first task to get started
         </p>
+        <button
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 hover:scale-[1.02] transition-transform duration-200 ease-in-out dark:hover:bg-primary/80"
+          onClick={onAddTask}
+        >
+          Add Your First Task
+        </button>
       </div>
     );
   }

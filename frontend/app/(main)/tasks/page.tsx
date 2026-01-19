@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { TaskList } from "@/components/task/task-list";
-import { TaskForm } from "@/components/task/task-form";
-import { AddTaskButton } from "@/components/task/add-task-button";
-import { useTasks } from "@/hooks/use-tasks";
-import type { Task, CreateTaskRequest, UpdateTaskRequest } from "@/lib/validations";
-import { auth } from "@/lib/auth";
+import { useState } from 'react';
+import { KanbanBoard } from '@/components/KanbanBoard';
+import { InsightsPanel } from '@/components/InsightsPanel';
+import { ProjectHeader } from '@/components/ProjectHeader';
+import { AddTaskModal } from '@/components/AddTaskModal';
+import { useTasks } from '@/hooks/use-tasks';
+import { useToast } from '@/hooks/use-toast';
+import type { Task, CreateTaskRequest, UpdateTaskRequest } from '@/lib/validations';
 
 export default function TasksPage() {
   const {
@@ -18,51 +19,90 @@ export default function TasksPage() {
     toggleTask,
   } = useTasks();
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [targetColumn, setTargetColumn] = useState<'backlog' | 'doing' | 'completed'>('backlog');
 
-  const handleAddTask = () => {
-    setEditingTask(null);
-    setIsFormOpen(true);
+  const handleAddTask = (column: 'backlog' | 'doing' | 'completed') => {
+    setTargetColumn(column);
+    setIsModalOpen(true);
   };
 
-  const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    setIsFormOpen(true);
-  };
-
-  const handleFormSubmit = async (data: CreateTaskRequest | UpdateTaskRequest) => {
-    setIsSubmitting(true);
+  const handleModalSubmit = async (taskData: CreateTaskRequest) => {
     try {
-      if (editingTask) {
-        await updateTask(editingTask.id, data as UpdateTaskRequest);
-      } else {
-        await createTask(data as CreateTaskRequest);
-      }
-    } finally {
-      setIsSubmitting(false);
+      await createTask(taskData);
+      setIsModalOpen(false);
+      return true;
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create task. Please try again.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
+  const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      // In a more advanced system, we would have a status field
+      // For now, we'll just pass the updates through
+      await updateTask(taskId, updates as UpdateTaskRequest);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update task. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleTaskDelete = async (taskId: string) => {
+    try {
+      await deleteTask(taskId);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete task. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleTaskToggle = async (taskId: string, completed: boolean) => {
+    try {
+      await toggleTask(taskId, completed);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update task status. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <TaskList
-        tasks={tasks}
-        onToggle={toggleTask}
-        onEdit={handleEditTask}
-        onDelete={deleteTask}
-        isLoading={isLoading}
-      />
+    <div className="min-h-screen bg-background">
+      <div className="flex">
+        {/* Main Kanban Board Area */}
+        <div className="flex-1 overflow-x-auto">
+          <KanbanBoard
+            tasks={tasks}
+            onTaskUpdate={handleTaskUpdate}
+            onTaskCreate={handleModalSubmit}
+            onTaskDelete={handleTaskDelete}
+            onAddTask={handleAddTask}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
 
-      <AddTaskButton onClick={handleAddTask} isLoading={isSubmitting} />
-
-      <TaskForm
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        onSubmit={handleFormSubmit}
-        task={editingTask}
-        isLoading={isSubmitting}
+      {/* Add Task Modal */}
+      <AddTaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleModalSubmit}
+        targetColumn={targetColumn}
       />
     </div>
   );

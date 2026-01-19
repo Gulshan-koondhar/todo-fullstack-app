@@ -6,6 +6,7 @@ export const BaseTaskSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().max(1000).nullable(),
   completed: z.boolean(),
+  inProgress: z.boolean().optional().default(false),
   user_id: z.string().uuid(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -41,6 +42,7 @@ export const UpdateTaskSchema = z.object({
     .optional()
     .nullable(),
   completed: z.boolean().optional(),
+  inProgress: z.boolean().optional(),
 });
 
 export type UpdateTaskRequest = z.infer<typeof UpdateTaskSchema>;

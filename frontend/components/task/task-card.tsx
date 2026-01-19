@@ -18,9 +18,12 @@ interface TaskCardProps {
 
 export function TaskCard({ task, onToggle, onEdit, onDelete, isUpdating }: TaskCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [statusAnnouncement, setStatusAnnouncement] = useState("");
 
   const handleToggle = async () => {
-    await onToggle(task.id, !task.completed);
+    const newCompletedStatus = !task.completed;
+    setStatusAnnouncement(newCompletedStatus ? "Task marked as complete" : "Task marked as incomplete");
+    await onToggle(task.id, newCompletedStatus);
   };
 
   const handleDelete = async () => {
@@ -35,12 +38,21 @@ export function TaskCard({ task, onToggle, onEdit, onDelete, isUpdating }: TaskC
   };
 
   return (
-    <Card
-      className={cn(
-        "transition-all duration-200",
-        task.completed && "opacity-60"
-      )}
-    >
+    <>
+      {/* ARIA live region for screen reader announcements */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {statusAnnouncement}
+      </div>
+      <Card
+        className={cn(
+          "transition-all duration-300 shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform duration-200 ease-in-out focus:ring-2 focus:ring-blue-500",
+          task.completed && "line-through text-gray-400 bg-green-50 dark:bg-green-900/20"
+        )}
+      >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1">
@@ -56,7 +68,7 @@ export function TaskCard({ task, onToggle, onEdit, onDelete, isUpdating }: TaskC
                 htmlFor={`task-${task.id}`}
                 className={cn(
                   "block text-lg font-medium leading-tight cursor-pointer",
-                  task.completed && "line-through text-muted-foreground"
+                  task.completed && "line-through text-gray-400"
                 )}
               >
                 {task.title}
@@ -65,7 +77,7 @@ export function TaskCard({ task, onToggle, onEdit, onDelete, isUpdating }: TaskC
                 <p
                   className={cn(
                     "mt-1 text-sm text-muted-foreground",
-                    task.completed && "line-through"
+                    task.completed && "text-gray-400"
                   )}
                 >
                   {task.description}
@@ -80,7 +92,7 @@ export function TaskCard({ task, onToggle, onEdit, onDelete, isUpdating }: TaskC
           <p
             className={cn(
               "text-sm text-muted-foreground",
-              task.completed && "line-through"
+              task.completed && "text-gray-400"
             )}
           >
             {task.description}
@@ -110,5 +122,6 @@ export function TaskCard({ task, onToggle, onEdit, onDelete, isUpdating }: TaskC
         </Button>
       </CardFooter>
     </Card>
+    </>
   );
 }

@@ -8,6 +8,7 @@ class TodoBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: Optional[str] = Field(default=None, max_length=1000)
     completed: bool = Field(default=False)
+    in_progress: bool = Field(default=False)
 
 
 class Todo(TodoBase, table=True):
@@ -34,6 +35,7 @@ class TodoUpdate(SQLModel):
     title: Optional[str] = Field(default=None, min_length=1, max_length=255)
     description: Optional[str] = Field(default=None, max_length=1000)
     completed: Optional[bool] = Field(default=None)
+    in_progress: Optional[bool] = Field(default=None)
 
 
 class TodoPublic(TodoBase):
