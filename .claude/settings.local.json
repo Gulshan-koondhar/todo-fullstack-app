@@ -65,7 +65,19 @@
       "Bash(./validate-chart.sh)",
       "Bash(minikube version)",
       "Bash(helm upgrade todo-app-release helm/todo-app/ -f secrets-values.yaml)",
-      "Bash(kubectl get pods)"
+      "Bash(kubectl get pods)",
+      "Bash(kubectl version --client)",
+      "Bash(helm version)",
+      "Bash(minikube start)",
+      "Bash(minikube start --driver=hyperv)",
+      "Bash(minikube update-context)",
+      "Bash(kubectl cluster-info)",
+      "Bash(kubectl logs todo-frontend-64f55995bb-tdn8q)",
+      "Bash(kubectl get svc:*)",
+      "Bash(kubectl describe pod:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl patch ingress:*)",
+      "Bash(kubectl get pod:*)"
     ]
   }
 }
