@@ -72,3 +72,4 @@ env/
 # Logs
 logs/
 *.log
+minikube.exe
