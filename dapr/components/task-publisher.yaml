@@ -1,0 +1,20 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: task-publisher
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  - name: brokers
+    value: "kafka:9092"
+  - name: authRequired
+    value: "false"
+  - name: consumerGroup
+    value: "task-processor"
+  - name: disableTls
+    value: "true"
+  - name: maxMessageBytes
+    value: "1048576"
+  - name: consumeRetryInterval
+    value: "200ms"

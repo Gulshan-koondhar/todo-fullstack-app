@@ -1,0 +1,262 @@
+openapi: 3.0.3
+info:
+  title: AI Todo Chatbot - Event-Driven API
+  description: API for the AI Todo Chatbot application with event-driven architecture
+  version: 1.0.0
+servers:
+  - url: https://api.todoapp.com/v1
+    description: Production server
+  - url: https://staging-api.todoapp.com/v1
+    description: Staging server
+
+paths:
+  /events/publish:
+    post:
+      summary: Publish a task-related event to Kafka
+      description: Creates and publishes a task event to the Kafka event stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskEvent'
+      responses:
+        '202':
+          description: Event accepted for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eventId:
+                    type: string
+                    description: The ID of the published event
+                  status:
+                    type: string
+                    enum: [accepted, queued, processing]
+        '400':
+          description: Invalid event data
+        '401':
+          description: Unauthorized access
+        '500':
+          description: Internal server error
+
+  /events/consume:
+    get:
+      summary: Consume events from Kafka
+      description: Retrieves and processes events from Kafka topics
+      parameters:
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [CREATE_TASK, UPDATE_TASK, COMPLETE_TASK, DELETE_TASK]
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskEvent'
+        '401':
+          description: Unauthorized access
+        '500':
+          description: Internal server error
+
+  /dapr/invoke/{appId}/method/{method}:
+    post:
+      summary: Invoke service via Dapr
+      description: Call another service through Dapr service invocation
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: method
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Method invoked successfully
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized access
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    TaskEvent:
+      type: object
+      required:
+        - eventId
+        - eventType
+        - taskId
+        - userId
+        - timestamp
+        - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: Unique identifier for the event
+        eventType:
+          type: string
+          enum: [CREATE_TASK, UPDATE_TASK, COMPLETE_TASK, DELETE_TASK]
+          description: Type of task event
+        taskId:
+          type: string
+          format: uuid
+          description: Identifier of the affected task
+        userId:
+          type: string
+          format: uuid
+          description: Identifier of the user who triggered the event
+        timestamp:
+          type: string
+          format: date-time
+          description: When the event was created
+        payload:
+          $ref: '#/components/schemas/TaskEventPayload'
+        correlationId:
+          type: string
+          format: uuid
+          description: For tracking related events
+        version:
+          type: string
+          default: "1.0"
+          description: Schema version
+
+    TaskEventPayload:
+      type: object
+      discriminator:
+        propertyName: eventType
+      properties:
+        eventType:
+          type: string
+          enum: [CREATE_TASK, UPDATE_TASK, COMPLETE_TASK, DELETE_TASK]
+      oneOf:
+        - $ref: '#/components/schemas/CreateTaskPayload'
+        - $ref: '#/components/schemas/UpdateTaskPayload'
+        - $ref: '#/components/schemas/CompleteTaskPayload'
+        - $ref: '#/components/schemas/DeleteTaskPayload'
+
+    CreateTaskPayload:
+      allOf:
+        - $ref: '#/components/schemas/TaskEventPayload'
+        - type: object
+          required: [title]
+          properties:
+            title:
+              type: string
+              maxLength: 200
+              description: Task title
+            description:
+              type: string
+              maxLength: 1000
+              description: Task description
+            createdAt:
+              type: string
+              format: date-time
+              description: Task creation time
+
+    UpdateTaskPayload:
+      allOf:
+        - $ref: '#/components/schemas/TaskEventPayload'
+        - type: object
+          properties:
+            title:
+              type: string
+              maxLength: 200
+              description: Updated task title
+            description:
+              type: string
+              maxLength: 1000
+              description: Updated task description
+            updatedAt:
+              type: string
+              format: date-time
+              description: Task update time
+
+    CompleteTaskPayload:
+      allOf:
+        - $ref: '#/components/schemas/TaskEventPayload'
+        - type: object
+          required: [completedAt]
+          properties:
+            completedAt:
+              type: string
+              format: date-time
+              description: Task completion time
+            completedBy:
+              type: string
+              format: uuid
+              description: User who completed the task
+
+    DeleteTaskPayload:
+      allOf:
+        - $ref: '#/components/schemas/TaskEventPayload'
+        - type: object
+          required: [deletedAt]
+          properties:
+            deletedAt:
+              type: string
+              format: date-time
+              description: Task deletion time
+
+    UserSession:
+      type: object
+      required:
+        - sessionId
+        - userId
+        - token
+        - createdAt
+        - expiresAt
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: Unique session identifier
+        userId:
+          type: string
+          format: uuid
+          description: Associated user identifier
+        token:
+          type: string
+          description: JWT token for authentication
+        createdAt:
+          type: string
+          format: date-time
+          description: Session creation time
+        expiresAt:
+          type: string
+          format: date-time
+          description: Session expiration time
+        lastActivity:
+          type: string
+          format: date-time
+          description: Last activity timestamp
+        clientInfo:
+          type: object
+          description: Information about the client device
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

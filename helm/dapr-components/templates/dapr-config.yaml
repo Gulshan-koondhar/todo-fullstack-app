@@ -1,0 +1,25 @@
+{{- if .Values.config.enabled }}
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: {{ .Values.config.name }}
+spec:
+  {{- if .Values.config.tracing.enabled }}
+  tracing:
+    samplingRate: {{ .Values.config.tracing.samplingRate | quote }}
+    zipkin:
+      endpointAddress: {{ .Values.config.tracing.zipkinEndpoint | quote }}
+  {{- end }}
+  {{- if .Values.config.metric.enabled }}
+  metric:
+    enabled: true
+  {{- end }}
+  httpPipeline:
+    handlers: []
+  secrets:
+    scopes:
+    {{- range .Values.config.secrets.scopes }}
+    - storeName: {{ .storeName | quote }}
+      defaultAccess: {{ .defaultAccess | quote }}
+    {{- end }}
+{{- end }}

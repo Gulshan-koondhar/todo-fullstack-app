@@ -1,0 +1,22 @@
+{{- if .Values.kafka.enabled }}
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ .Values.kafka.componentName }}
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  - name: brokers
+    value: {{ .Values.kafka.brokers | quote }}
+  - name: authRequired
+    value: {{ .Values.kafka.authRequired | quote }}
+  - name: consumerGroup
+    value: {{ .Values.kafka.consumerGroup | quote }}
+  - name: disableTls
+    value: {{ .Values.kafka.disableTls | quote }}
+  - name: maxMessageBytes
+    value: "1048576"
+  - name: consumeRetryInterval
+    value: "200ms"
+{{- end }}

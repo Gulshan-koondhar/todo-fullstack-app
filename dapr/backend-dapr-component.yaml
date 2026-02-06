@@ -1,0 +1,28 @@
+# Dapr annotations for backend service
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: backend-service
+spec:
+  type: serviceinvoker
+  version: v1
+  metadata: []
+---
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: backend-dapr-config
+spec:
+  tracing:
+    samplingRate: "1"
+    zipkin:
+      endpointAddress: "http://zipkin.default.svc.cluster.local:9411/api/v2/spans"
+  httpPipeline:
+    handlers: []
+  secrets:
+    scopes:
+    - storeName: kubernetes
+      defaultAccess: allow
+  accessControl:
+    defaultAction: allow
+    trustDomain: "pubsub"

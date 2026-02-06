@@ -1,0 +1,32 @@
+# Dapr Component Template
+# Use this as a base for creating new Dapr components
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ COMPONENT_NAME }}
+spec:
+  type: {{ COMPONENT_TYPE }}  # e.g., pubsub.kafka, state.redis, bindings.aws.sqs
+  version: {{ VERSION }}
+  metadata:
+  - name: {{ PROPERTY_NAME }}
+    value: "{{ PROPERTY_VALUE }}"
+  - name: authRequired
+    value: "{{ AUTH_REQUIRED }}"  # "true" or "false"
+  - name: consumerGroup
+    value: "{{ CONSUMER_GROUP }}"  # For pubsub components
+  - name: disableTls
+    value: "{{ DISABLE_TLS }}"  # "true" or "false" for development
+
+# Example usage:
+# For Kafka pubsub:
+#   type: pubsub.kafka
+#   brokers: "kafka:9092"
+#
+# For Redis state store:
+#   type: state.redis
+#   redisHost: "redis-master:6379"
+#
+# For AWS SQS binding:
+#   type: bindings.aws.sqs
+#   queueName: "my-queue"

@@ -1,0 +1,32 @@
+# Default values for Dapr components
+
+# Kafka pubsub configuration
+kafka:
+  enabled: true
+  componentName: "kafka-pubsub"
+  brokers: "kafka:9092"
+  authRequired: "false"
+  consumerGroup: "task-processor"
+  disableTls: "true"
+
+# Redis state store configuration
+redis:
+  enabled: true
+  componentName: "statestore"
+  redisHost: "redis-master:6379"
+  secretStoreName: "kubernetes"
+
+# Configuration for Dapr
+config:
+  enabled: true
+  name: "dapr-config"
+  tracing:
+    enabled: true
+    samplingRate: "1"
+    zipkinEndpoint: "http://zipkin.default.svc.cluster.local:9411/api/v2/spans"
+  metric:
+    enabled: true
+  secrets:
+    scopes:
+    - storeName: "kubernetes"
+      defaultAccess: "allow"

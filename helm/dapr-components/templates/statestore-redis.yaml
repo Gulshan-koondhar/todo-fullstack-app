@@ -1,0 +1,16 @@
+{{- if .Values.redis.enabled }}
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ .Values.redis.componentName }}
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: {{ .Values.redis.redisHost | quote }}
+  - name: redisPassword
+    secretKeyRef:
+      name: redis-password
+      key: redis-password
+{{- end }}

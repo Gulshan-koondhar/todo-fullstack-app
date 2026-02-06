@@ -1,0 +1,189 @@
+# Todo API Contract
+
+## Overview
+This contract defines the API endpoints for todo operations that will be accessed via MCP tools from the AI agent.
+
+## Base URL
+`/api/v1/todos`
+
+## Endpoints
+
+### Create Todo
+**POST** `/api/v1/todos`
+
+**Description**: Creates a new todo item for the authenticated user
+
+**Headers**:
+- `Authorization: Bearer {jwt_token}` (required)
+
+**Request Body**:
+```json
+{
+  "title": "string (required, 1-255 chars)",
+  "description": "string (optional, 0-1000 chars)",
+  "completed": "boolean (optional, default: false)"
+}
+```
+
+**Response**:
+- `201 Created`: Todo successfully created
+```json
+{
+  "id": "uuid",
+  "title": "string",
+  "description": "string",
+  "completed": "boolean",
+  "created_at": "datetime",
+  "updated_at": "datetime",
+  "user_id": "uuid"
+}
+```
+
+- `400 Bad Request`: Invalid input
+- `401 Unauthorized`: Invalid or missing JWT
+- `422 Unprocessable Entity`: Validation error
+
+### Get Todos
+**GET** `/api/v1/todos`
+
+**Description**: Retrieves all todos for the authenticated user
+
+**Headers**:
+- `Authorization: Bearer {jwt_token}` (required)
+
+**Query Parameters**:
+- `completed`: boolean (optional, filter by completion status)
+- `limit`: integer (optional, default: 50, max: 100)
+- `offset`: integer (optional, default: 0)
+
+**Response**:
+- `200 OK`: Todos successfully retrieved
+```json
+{
+  "todos": [
+    {
+      "id": "uuid",
+      "title": "string",
+      "description": "string",
+      "completed": "boolean",
+      "created_at": "datetime",
+      "updated_at": "datetime",
+      "user_id": "uuid"
+    }
+  ],
+  "total": "integer"
+}
+```
+
+- `401 Unauthorized`: Invalid or missing JWT
+
+### Get Todo by ID
+**GET** `/api/v1/todos/{todo_id}`
+
+**Description**: Retrieves a specific todo by ID for the authenticated user
+
+**Headers**:
+- `Authorization: Bearer {jwt_token}` (required)
+
+**Path Parameters**:
+- `todo_id`: uuid (required)
+
+**Response**:
+- `200 OK`: Todo successfully retrieved
+```json
+{
+  "id": "uuid",
+  "title": "string",
+  "description": "string",
+  "completed": "boolean",
+  "created_at": "datetime",
+  "updated_at": "datetime",
+  "user_id": "uuid"
+}
+```
+
+- `401 Unauthorized`: Invalid or missing JWT
+- `404 Not Found`: Todo not found or doesn't belong to user
+
+### Update Todo
+**PUT** `/api/v1/todos/{todo_id}`
+
+**Description**: Updates a specific todo by ID for the authenticated user
+
+**Headers**:
+- `Authorization: Bearer {jwt_token}` (required)
+
+**Path Parameters**:
+- `todo_id`: uuid (required)
+
+**Request Body**:
+```json
+{
+  "title": "string (optional, 1-255 chars)",
+  "description": "string (optional, 0-1000 chars)",
+  "completed": "boolean (optional)"
+}
+```
+
+**Response**:
+- `200 OK`: Todo successfully updated
+```json
+{
+  "id": "uuid",
+  "title": "string",
+  "description": "string",
+  "completed": "boolean",
+  "created_at": "datetime",
+  "updated_at": "datetime",
+  "user_id": "uuid"
+}
+```
+
+- `400 Bad Request`: Invalid input
+- `401 Unauthorized`: Invalid or missing JWT
+- `404 Not Found`: Todo not found or doesn't belong to user
+- `422 Unprocessable Entity`: Validation error
+
+### Delete Todo
+**DELETE** `/api/v1/todos/{todo_id}`
+
+**Description**: Deletes a specific todo by ID for the authenticated user
+
+**Headers**:
+- `Authorization: Bearer {jwt_token}` (required)
+
+**Path Parameters**:
+- `todo_id`: uuid (required)
+
+**Response**:
+- `204 No Content`: Todo successfully deleted
+- `401 Unauthorized`: Invalid or missing JWT
+- `404 Not Found`: Todo not found or doesn't belong to user
+
+### Toggle Todo Completion
+**PATCH** `/api/v1/todos/{todo_id}/toggle`
+
+**Description**: Toggles the completion status of a specific todo for the authenticated user
+
+**Headers**:
+- `Authorization: Bearer {jwt_token}` (required)
+
+**Path Parameters**:
+- `todo_id`: uuid (required)
+
+**Response**:
+- `200 OK`: Todo completion status successfully toggled
+```json
+{
+  "id": "uuid",
+  "title": "string",
+  "description": "string",
+  "completed": "boolean",
+  "created_at": "datetime",
+  "updated_at": "datetime",
+  "user_id": "uuid"
+}
+```
+
+- `401 Unauthorized`: Invalid or missing JWT
+- `404 Not Found`: Todo not found or doesn't belong to user

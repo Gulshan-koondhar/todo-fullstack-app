@@ -1,0 +1,98 @@
+# Kafka Helm Chart Configuration for DOKS
+# Based on Bitnami Kafka chart
+
+## Global parameters
+global:
+  storageClass: do-block-storage  # DigitalOcean Block Storage class
+
+## Kafka parameters
+kafka:
+  ## Kafka Image
+  image:
+    registry: docker.io
+    repository: bitnami/kafka
+    tag: 3.6.0-debian-11-r0
+
+  ## Authentication parameters
+  auth:
+    clientProtocol: PLAINTEXT
+    interBrokerProtocol: PLAINTEXT
+
+  ## Kafka Configuration
+  configuration: |-
+    num.network.threads=3
+    num.io.threads=8
+    socket.send.buffer.bytes=102400
+    socket.receive.buffer.bytes=102400
+    socket.request.max.bytes=104857600
+    num.partitions=3
+    num.recovery.threads.per.data.dir=1
+    offsets.topic.replication.factor=1
+    transaction.state.log.replication.factor=1
+    transaction.state.log.min.isr=1
+    log.retention.hours=168
+    log.segment.bytes=1073741824
+    log.retention.check.interval.ms=300000
+    zookeeper.connection.timeout.ms=18000
+    group.initial.rebalance.delay.ms=0
+
+  ## Persistence configuration
+  persistence:
+    enabled: true
+    storageClass: do-block-storage
+    size: 10Gi
+
+  ## Resource limits and requests
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+  ## Number of Kafka brokers
+  replicaCount: 3
+
+## Zookeeper parameters
+zookeeper:
+  enabled: true
+
+  ## Zookeeper Configuration
+  persistence:
+    enabled: true
+    storageClass: do-block-storage
+    size: 8Gi
+
+  ## Resource limits and requests
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+## Service parameters
+service:
+  type: ClusterIP
+  ports:
+    client: 9092
+    externalClient: 9094
+  nodePorts:
+    client: ""
+    externalClient: ""
+
+## Metrics configuration
+metrics:
+  kafka:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+  zookeeper:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+## Logging configuration
+logLevel: INFO
