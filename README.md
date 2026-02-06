@@ -1,18 +1,21 @@
-# Phase IV - Local Kubernetes Deployment
+# Phase V - Cloud-Native Event-Driven Architecture
 
-This repository contains the AI Todo Chatbot application deployed to a local Kubernetes cluster using Minikube and Helm charts.
+This repository contains the AI Todo Chatbot application with production-ready cloud-native deployment capabilities using DigitalOcean Kubernetes (DOKS), Dapr, Apache Kafka, and event-driven architecture.
 
 ## Features
 
+- **Cloud-Native Deployment**: Optimized for DigitalOcean Kubernetes (DOKS) with production-ready configurations
+- **Event-Driven Architecture**: Apache Kafka integration with Dapr for asynchronous task event processing
+- **Horizontal Pod Autoscaling**: Automatic scaling based on CPU and memory metrics
 - **Containerized Application**: Next.js frontend and FastAPI backend in Docker containers
-- **Kubernetes Native**: Deployed with Helm charts to Minikube cluster
+- **Kubernetes Native**: Deployed with comprehensive Helm charts including Dapr and Kafka components
 - **User Authentication**: Secure signup/signin with JWT tokens
 - **Task Management**: Create, view, update, delete, and complete tasks
 - **AI Chatbot**: Natural language interaction with AI assistant
 - **Data Isolation**: Complete user data isolation - users can only see their own tasks
-- **Horizontal Scaling**: Backend services can scale to multiple replicas
 - **Stateless Architecture**: All persistent data stored in external Neon PostgreSQL
 - **Secure Secrets Management**: Sensitive configuration stored in Kubernetes Secrets
+- **AIOps Integration**: Designed for kubectl-ai and kagent for intelligent operations
 
 ## Tech Stack
 
@@ -32,39 +35,66 @@ This repository contains the AI Todo Chatbot application deployed to a local Kub
 - Helm for package management
 - kubectl for cluster management
 
-## Deployment Instructions
+## Cloud Deployment Instructions
 
 ### Prerequisites
 
 - Docker Desktop or Docker Engine
-- Minikube
 - kubectl
 - Helm 3.x
+- Dapr CLI
+- DigitalOcean CLI (doctl)
 - Git
+- Access to DigitalOcean Kubernetes (DOKS)
 
-### 1. Start Minikube
+### 1. Configure DigitalOcean Kubernetes (DOKS)
 ```bash
-minikube start
-minikube addons enable ingress  # Enable ingress for external access
+# Authenticate with DigitalOcean
+doctl auth init
+
+# Connect to your DOKS cluster
+doctl kubernetes cluster kubeconfig save <your-cluster-name>
 ```
 
-### 2. Build Docker Images
+### 2. Push Docker Images to Registry
 ```bash
-# Navigate to project root
-cd C:\Users\hp\Desktop\hackathon_phase_IV
+# Tag images for your container registry (e.g., DigitalOcean Container Registry)
+docker tag todo-frontend:latest registry.digitalocean.com/your-registry/todo-frontend:latest
+docker tag todo-backend:latest registry.digitalocean.com/your-registry/todo-backend:latest
 
-# Build frontend image
-docker build -f docker/frontend.Dockerfile -t todo-frontend:latest .
+# Push images to registry
+docker push registry.digitalocean.com/your-registry/todo-frontend:latest
+docker push registry.digitalocean.com/your-registry/todo-backend:latest
 
-# Build backend image
-docker build -f docker/backend.Dockerfile -t todo-backend:latest .
-
-# Load images into Minikube
-minikube image load todo-frontend:latest
-minikube image load todo-backend:latest
+# Update values.yaml with your image repository paths
+# Or create a secrets-values.yaml file with your sensitive configuration:
 ```
 
-### 3. Prepare Secret Values
+### 3. Initialize Dapr on DOKS
+```bash
+# Initialize Dapr in the cluster
+dapr init -k --runtime-version=1.11.0
+
+# Verify Dapr installation
+kubectl get pods -n dapr-system
+```
+
+### 4. Deploy Kafka for Event Streaming
+```bash
+# Add Bitnami repository
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
+# Create namespace for Kafka
+kubectl create namespace kafka
+
+# Install Kafka with Zookeeper
+helm install kafka bitnami/kafka \
+  --namespace kafka \
+  --values ./kafka/values.yaml
+```
+
+### 5. Prepare Secret Values
 Create a `secrets-values.yaml` file with your sensitive configuration:
 ```yaml
 # secrets-values.yaml
@@ -75,7 +105,7 @@ secrets:
   betterAuthSecret: "your-better-auth-secret-here"
 ```
 
-### 4. Deploy with Helm
+### 6. Deploy with Helm
 ```bash
 # Navigate to helm directory
 cd helm/todo-app
@@ -87,73 +117,102 @@ helm install todo-app . -f secrets-values.yaml
 helm upgrade todo-app . -f secrets-values.yaml
 ```
 
-### 5. Access the Application
+### 7. Access the Application
 ```bash
-# Get the service URL
-minikube service todo-frontend-service --url
+# Get the load balancer IP
+kubectl get svc todo-frontend-service -n todo-app
 
-# Or use tunnel for direct access (in separate terminal)
-minikube tunnel
+# Or configure ingress for domain access
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/do/deploy.yaml
 ```
 
 ## Verification Steps
 
 ### 1. Check Pod Status
 ```bash
-kubectl get pods
-# All pods should be in Running state
+kubectl get pods -A
+# All pods should be in Running state (including dapr-system, kafka, and todo-app namespaces)
 ```
 
 ### 2. Check Services
 ```bash
-kubectl get services
+kubectl get services -n todo-app
 # Verify frontend and backend services are available
 ```
 
-### 3. Test Application Functionality
-- Access the frontend URL from `minikube service` command
+### 3. Test Event-Driven Functionality
+```bash
+# Check Dapr sidecars are injected
+kubectl get pods -n todo-app -o yaml | grep dapr
+
+# Test application functionality
+- Access the frontend URL from load balancer
 - Test user registration/login
 - Create and manage tasks
 - Use the AI chatbot functionality
 - Verify conversation history persists
+- Check Kafka topics for published events:
+kubectl exec -it -n kafka $(kubectl get pods -n kafka -l app.kubernetes.io/name=kafka -o jsonpath='{.items[0].metadata.name}') -- kafka-topics.sh --list --bootstrap-server localhost:9092
+```
 
-### 4. Test Scaling
+### 4. Test Horizontal Pod Autoscaling
 ```bash
-# Scale backend to 3 replicas
-kubectl scale deployment todo-backend --replicas=3
+# Check HPA status
+kubectl get hpa -n todo-app
+kubectl describe hpa -n todo-app
 
-# Verify all replicas are running
-kubectl get pods
+# Generate load to test scaling
+hey -n 1000 -c 10 http://your-app-domain.com/api/v1/tasks?user_id=test-user
 ```
 
 ### 5. Test Resilience
 ```bash
 # Delete a backend pod to test statelessness
-kubectl delete pod $(kubectl get pods -l app=todo-backend -o jsonpath='{.items[0].metadata.name}')
+kubectl delete pod -n todo-app $(kubectl get pods -n todo-app -l app=todo-backend -o jsonpath='{.items[0].metadata.name}')
 
 # Verify application continues to function
-# Check that conversation history persists
+# Check that conversation history persists in Neon PostgreSQL
+# Verify Dapr sidecar automatically reconnects
 ```
 
 ## AIOps Integration
 
-### 1. Using kubectl-ai
-```bash
-# Generate a sample deployment manifest using AI
-kubectl ai create deployment todo-test --image=nginx --replicas=2
+### 1. Phase V: Cloud-Native Event-Driven Architecture
 
-# Troubleshoot issues with AI assistance
-kubectl ai explain "pods in CrashLoopBackOff"
+Phase V successfully implements a production-ready, cloud-native event-driven architecture for the AI Todo Chatbot application. Key features include:
+
+- **DigitalOcean Kubernetes (DOKS) Deployment**: Full Helm chart support for production deployment
+- **Event-Driven Architecture**: Apache Kafka integration with Dapr for task event processing
+- **Horizontal Pod Autoscaling**: Automatic scaling based on CPU and memory metrics
+- **AIOps Integration**: Support for kubectl-ai and kagent for intelligent operations
+- **Production-Ready**: All components optimized for cloud deployment with resilience
+
+### Using kubectl-ai
+```bash
+# Generate HPA configuration using AI
+kubectl ai create hpa todo-backend-hpa --namespace todo-app --from=deployment/todo-backend --cpu-percent=70 --min=2 --max=5
+
+# Troubleshoot deployment issues with AI assistance
+kubectl ai explain "pods in CrashLoopBackOff" --namespace todo-app
+
+# Generate Dapr component configuration
+kubectl ai create component kafka-pubsub --apiVersion=dapr.io/v1alpha1
 ```
 
 ## Uninstallation
 
 ```bash
 # Uninstall the application
-helm uninstall todo-app
+helm uninstall todo-app -n todo-app
 
-# Optionally stop Minikube
-minikube stop
+# Uninstall Kafka
+helm uninstall kafka -n kafka
+
+# Remove namespaces
+kubectl delete namespace todo-app kafka
+
+# Optionally remove Dapr from cluster
+dapr uninstall -k
 ```
 
 ## Troubleshooting
@@ -183,10 +242,10 @@ minikube stop
 │   ├── frontend.Dockerfile  # Multi-stage build for Next.js frontend
 │   └── backend.Dockerfile   # Multi-stage build for FastAPI backend + MCP server
 ├── helm/                     # Helm charts for deployment
-│   ├── todo-app/            # Main application chart
+│   ├── todo-app/            # Main application chart with Dapr annotations
 │   │   ├── Chart.yaml       # Chart metadata
 │   │   ├── values.yaml      # Default configuration values
-│   │   ├── templates/       # Kubernetes resource templates
+│   │   ├── templates/       # Kubernetes resource templates with Dapr annotations
 │   │   └── README.md        # Chart documentation
 │   └── dapr-components/     # Dapr components Helm subchart
 │       ├── Chart.yaml       # Chart metadata
@@ -196,17 +255,21 @@ minikube stop
 │   ├── components/          # Individual Dapr component definitions
 │   ├── templates/           # Reusable Dapr component templates
 │   └── config.yaml          # Dapr configuration
-├── kafka/                    # Kafka configuration files
+├── kafka/                    # Kafka configuration files optimized for DOKS
 ├── k8s/raw/                 # Raw Kubernetes manifests (optional reference)
 ├── frontend/                # Next.js frontend source code
-├── backend/                 # FastAPI backend source code
+├── backend/                 # FastAPI backend source code with Dapr event publisher
+│   └── src/mcp_tools/       # MCP tools including event_publisher.py
 ├── docs/                     # Documentation
 │   ├── event-driven-architecture.md  # Event-driven architecture documentation
 │   └── deployment-quickstart.md      # Deployment quickstart guide
 ├── specs/                    # Feature specifications
 │   └── 004-cloud-native-event-arch/ # Phase V specifications
-└── history/                  # Development history records
-    └── prompts/             # Prompt History Records
+├── history/                  # Development history records
+│   └── prompts/             # Prompt History Records
+├── PHASE_V_SUMMARY.md       # Phase V implementation summary
+├── DEPLOYMENT_GUIDE.md      # Cloud deployment guide
+└── README.md                # This file
 ```
 
 ## Event-Driven Architecture
