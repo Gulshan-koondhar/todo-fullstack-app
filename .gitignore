@@ -72,3 +72,10 @@ env/
 # Logs
 logs/
 *.log
+
+# Binaries and executables
+*.exe
+*.zip
+dapr
+doctl
+kind
