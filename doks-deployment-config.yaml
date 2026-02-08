@@ -1,0 +1,66 @@
+# DigitalOcean Kubernetes (DOKS) Deployment Configuration
+# This file outlines the configuration needed for deploying to DOKS
+
+# Cluster Configuration
+cluster:
+  name: "ai-todo-chatbot-prod"
+  region: "nyc1"  # You can change to your preferred region
+  version: "1.28.3-do.0"  # Latest stable version
+  node_pools:
+    - name: "frontend-pool"
+      size: "s-2vcpu-4gb"  # 2 vCPUs, 4GB RAM
+      count: 2
+      auto_scale: true
+      min_nodes: 1
+      max_nodes: 5
+    - name: "backend-pool"
+      size: "s-2vcpu-4gb"  # 2 vCPUs, 4GB RAM
+      count: 2
+      auto_scale: true
+      min_nodes: 1
+      max_nodes: 5
+
+# Storage Configuration for DOKS
+storage:
+  class: "do-block-storage"  # DigitalOcean Block Storage
+  provisioner: "dobs.csi.digitalocean.com"
+
+# Application Configuration
+application:
+  namespace: "todo-app"
+  images:
+    backend: "registry.digitalocean.com/your-registry/todo-backend:latest"
+    frontend: "registry.digitalocean.com/your-registry/todo-frontend:latest"
+  replicas:
+    backend: 2
+    frontend: 2
+
+# Kafka Configuration for DOKS
+kafka:
+  storage_class: "do-block-storage"
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+
+# Dapr Configuration for Production
+dapr:
+  runtime_version: "1.11.0"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+# HPA Configuration
+hpa:
+  backend:
+    min_replicas: 2
+    max_replicas: 10
+    target_cpu_utilization_percentage: 70
+    target_memory_utilization_percentage: 80

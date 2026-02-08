@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-config
+  namespace: kafka
+data:
+  server.properties: |
+    broker.id=0
+    listeners=PLAINTEXT://:9092
+    advertised.listeners=PLAINTEXT://kafka:9092
+    listener.security.protocol.map=PLAINTEXT:PLAINTEXT
+    num.network.threads=3
+    num.io.threads=8
+    socket.send.buffer.bytes=102400
+    socket.receive.buffer.bytes=102400
+    socket.request.max.bytes=104857600
+    num.partitions=1
+    num.recovery.threads.per.data.dir=1
+    offsets.topic.replication.factor=1
+    transaction.state.log.replication.factor=1
+    transaction.state.log.min.isr=1
+    log.retention.hours=168
+    log.segment.bytes=1073741824
+    log.retention.check.interval.ms=300000
+    zookeeper.connection.timeout.ms=18000
+    group.initial.rebalance.delay.ms=0
+    auto.create.topics.enable=true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-single
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-single
+  template:
+    metadata:
+      labels:
+        app: kafka-single
+    spec:
+      containers:
+      - name: kafka
+        image: docker.io/bitnami/kafka:3.6.0-debian-11-r0
+        ports:
+        - containerPort: 9092
+        env:
+        - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+          value: "localhost:2181"  # We'll use a simple in-container zookeeper for demo
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://kafka:9092"
+        - name: KAFKA_CFG_LISTENERS
+          value: "PLAINTEXT://:9092"
+        - name: ALLOW_PLAINTEXT_LISTENER
+          value: "yes"
+        - name: KAFKA_BROKER_ID
+          value: "1"
+        volumeMounts:
+        - name: kafka-config-volume
+          mountPath: /opt/bitnami/kafka/config/server.properties
+          subPath: server.properties
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: kafka-config-volume
+        configMap:
+          name: kafka-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: kafka
+spec:
+  selector:
+    app: kafka-single
+  ports:
+    - protocol: TCP
+      port: 9092
+      targetPort: 9092
+  type: ClusterIP

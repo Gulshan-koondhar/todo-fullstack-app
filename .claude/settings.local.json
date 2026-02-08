@@ -55,7 +55,13 @@
       "Bash(docker build -f Dockerfile.minimal -t todo-frontend-minimal .)",
       "Bash(docker build -f frontend/Dockerfile -t todo-frontend .)",
       "Bash(docker build -f docker/frontend.Dockerfile -t frontend-app .)",
-      "Bash(docker build -f docker/frontend.Dockerfile -t frontend-app --build-arg BUILDKIT_INLINE_CACHE=1 .)"
+      "Bash(docker build -f docker/frontend.Dockerfile -t frontend-app --build-arg BUILDKIT_INLINE_CACHE=1 .)",
+      "Bash(helm install:*)",
+      "Bash(kubectl get pods:*)",
+      "Bash(kubectl describe pod:*)",
+      "Bash(kubectl create namespace:*)",
+      "Bash(kubectl get hpa:*)",
+      "Bash(kubectl get all:*)"
     ]
   }
 }
